@@ -1,0 +1,18 @@
+[default.general]
+chip = "STM32F303RE"
+
+[default.gdb]
+#enabled = true
+
+[default.reset]
+#halt_afterwards = true
+
+#speed = 1800  # Optional: SWD/JTAG speed in kHz
+
+#[flashing]
+#reset = "enable"
+#halt_after_reset = true
+
+#[logging]
+#enabled = false
+
