@@ -2,6 +2,8 @@
 
 use core::ptr::{self, read_volatile, write_volatile};
 
+use crate::board::InputMode;
+
 // gpio ports
 pub const GPIO_PORT_SIZE: u32 = 0x400;
 pub const GPIO_BASE: u32 = 0x4800_0000;
@@ -23,6 +25,7 @@ pub const GPIO_ODR_OFFSET: u32 = 0x14;
 pub const RCC_BASE: u32 = 0x4002_1000;
 pub const RCC_AHBENR_OFFSET: u32 = 0x14;
 
+#[derive(Clone, Copy)]
 pub enum GPIOPort {
     PortH,
     PortA,
@@ -128,5 +131,34 @@ pub fn set_pin_state(port: u32, pin: u32, state: PinState) {
             }
         };
         write_volatile(bssr, bssr_write_val);
+    }
+}
+
+/// Configure gpio pin mode
+pub fn set_gpio_port_mode(port: GPIOPort, pin: u32, mode: GPIOMode) {
+    match port {
+        GPIOPort::PortF => {
+            if pin == 10 || pin == 11 {
+                // GPIOF pin 10 and 11 must be kept in reset state for STM32F303xB/xC
+                return;
+            }
+        }
+        _ => {}
+    }
+    let port_addr: u32 = u32::from(port);
+
+    // set gpio port mode (GPIOx_MODER)
+    let gpio_moder_addr: *mut u32 = (port_addr + GPIOX_MODER_OFFSET) as *mut u32;
+    let mut gpio_moder_val: u32 = unsafe { read_volatile(gpio_moder_addr) };
+
+    // set gpio port mode
+    let moder_pin_postion: u32 = pin * 2;
+    let mode_mask: u32 = 0b11 << moder_pin_postion;
+    let mode_value_to_config: u32 = u32::from(mode) << moder_pin_postion;
+
+    unsafe {
+        gpio_moder_val &= !(mode_mask); // clear the bit postion
+        gpio_moder_val |= mode_value_to_config; // set the pit postion
+        write_volatile(gpio_moder_addr, gpio_moder_val);
     }
 }
