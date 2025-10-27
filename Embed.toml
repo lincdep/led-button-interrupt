@@ -2,10 +2,10 @@
 chip = "STM32F303RE"
 
 [default.gdb]
-#enabled = true
+e:halt_afterwards nabled = true
 
 [default.reset]
-#halt_afterwards = true
+halt_afterwards = true
 
 #speed = 1800  # Optional: SWD/JTAG speed in kHz
 
