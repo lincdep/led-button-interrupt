@@ -43,7 +43,7 @@ pub mod gpio {
     pub fn set_edge_trigger(pin: u32, edge: EdgeTrigger) {
         let (exti_reg_1, bit_pos) = match pin {
             0..=31 if !(23..=28).contains(&pin) => (true, pin),
-            32..=33 => (false, pin - 31),
+            32..=33 => (false, pin - 32),
             _ => return, // not a setable exti pin
         };
         let (rtsr_off, ftsr_off) = if exti_reg_1 {
@@ -182,8 +182,6 @@ pub fn clear_pending_interrupt(exti_line: ExtiLine) {
         _ => return, // out of range of valid exti line number
     };
     unsafe {
-        let mut exti_imr_val = read_volatile(exti_imr);
-        exti_imr_val &= !(1 << bit_pos);
-        write_volatile(exti_imr, exti_imr_val);
+        write_volatile(exti_imr, 1 << bit_pos);
     }
 }

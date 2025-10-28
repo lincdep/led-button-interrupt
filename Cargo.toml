@@ -12,3 +12,4 @@ bench = false
 
 [dependencies]
 cortex-m-rt = "0.7.5"
+stm32f3 = { version = "0.16.0", features = ["stm32f303"] }

@@ -57,7 +57,7 @@ pub fn led_init(port: u32, pin: u32) {
     // set output type to pushpull
     let gpio_output_type_reg_addr: *mut u32 = (port + GPIO_PORT_OUTPUT_TYPE_OFFSET) as *mut u32;
     unsafe {
-        let mut gpio_output_type_val = read_volatile(gpio_port_mode_reg_addr);
+        let mut gpio_output_type_val = read_volatile(gpio_output_type_reg_addr);
         gpio_output_type_val |= u32::from(GPIOOutputType::PushPull) << pin; // set the output type to
         // PushPull
         write_volatile(gpio_output_type_reg_addr, gpio_output_type_val);
@@ -65,7 +65,7 @@ pub fn led_init(port: u32, pin: u32) {
 }
 
 /// turns the led on
-pub fn let_on(port: u32, pin: u32) {
+pub fn led_on(port: u32, pin: u32) {
     set_pin_state(port, pin, PinState::GPIOPinHigh);
 }
 
@@ -108,12 +108,6 @@ pub fn button_init(port: GPIOPort, pin: u32, mode: InputMode) {
     // set the cfgreg
     exti::gpio::configure_syscfg_external_iterrupt(port, pin);
 }
-
-// pub fn button_configure_interrupt() {}
-//
-// pub fn button_read_status(port: u32, pin: u32) -> ButtonStatus {
-//     todo!()
-// }
 
 pub fn button_clear_iterrupt(pin: u32) {
     if let Some(exti_line) = ExtiLine::from_pin(pin) {

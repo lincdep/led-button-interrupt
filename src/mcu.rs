@@ -200,21 +200,22 @@ pub fn enable_gpio_clock(port: GPIOPort) {
 /// set_pin_state will set the pin provided's state to the state
 pub fn set_pin_state(port: u32, pin: u32, state: PinState) {
     unsafe {
-        let bssr: *mut u32 = (GPIOE_BASE + GPIO_BSRR_OFFSET) as *mut u32;
-        let bssr_write_val: u32 = match state {
+        let bsrr: *mut u32 = (port + GPIO_BSRR_OFFSET) as *mut u32;
+        let bsrr_write_val: u32 = match state {
             PinState::GPIOPinHigh => 1 << pin,
             PinState::GPIOPinLow => 1 << (pin + 16),
             PinState::GPIOPinToggle => {
-                let podr: *mut u32 = (GPIOE_BASE + GPIO_ODR_OFFSET) as *mut u32;
-                let podr_val = ptr::read_volatile(podr);
-                if ((podr_val >> pin) & 0x1) != 0 {
-                    1 << (pin + 16)
-                } else {
+                let odr: *mut u32 = (port + GPIO_ODR_OFFSET) as *mut u32;
+                let odr_val = ptr::read_volatile(odr);
+
+                if ((odr_val >> pin) & 0x1) == 0 {
                     1 << pin
+                } else {
+                    1 << (pin + 16)
                 }
             }
         };
-        write_volatile(bssr, bssr_write_val);
+        write_volatile(bsrr, bsrr_write_val);
     }
 }
 
